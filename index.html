@@ -577,6 +577,7 @@ function renderHistory() {
           <div class="history-meta">${r.correct}✓ ${hp?r.partial+'½ ':''}${r.wrong}✗ ${r.unanswered??0} skip — ${r.total} Qs — ${new Date(r.date).toLocaleString()}</div>
         </div>
         <div class="history-actions">
+          <button class="btn btn-ghost" style="font-size:.75rem;padding:7px 12px" onclick="retestQuiz(${r.id})">↺ RETEST</button>
           <button class="btn btn-ghost" style="font-size:.75rem;padding:7px 12px" onclick="reviewResult(${r.id})">REVIEW</button>
           <button class="btn btn-danger" style="font-size:.75rem;padding:7px 12px" onclick="deleteResult(${r.id})">✕</button>
         </div>
@@ -590,7 +591,10 @@ function reviewResult(id) {
   if (!result) return;
   const hp = result.partial > 0;
   document.getElementById('history-content').innerHTML = `
-    <button class="btn btn-ghost" style="margin-bottom:16px" onclick="renderHistory()">← BACK</button>
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="renderHistory()">← BACK</button>
+      <button class="btn btn-accent" onclick="retestQuiz(${result.id})">↺ RETEST</button>
+    </div>
     <div class="result-banner">
       <div class="result-score">${result.score}%</div>
       <div class="result-label">${result.pass?'✓ PASSED':'✗ FAILED'} — ${result.name}</div>
@@ -604,6 +608,23 @@ function reviewResult(id) {
     </div>
     ${buildReview(result.questions)}
   `;
+}
+
+function retestQuiz(id) {
+  const result = getHistory().find(r => r.id === id);
+  if (!result) return;
+  // Rebuild questions from stored result (strip chosen answers)
+  const questions = result.questions.map(q => ({
+    text: q.text,
+    type: q.type || 'single',
+    options: q.options,
+    corrects: q.corrects || [q.correct],
+  }));
+  currentQuiz = { name: result.name, questions };
+  answers = {}; revealed = {}; currentQ = 0;
+  switchTab('quiz');
+  renderQuizStep();
+  toast(`Retaking: ${result.name}`);
 }
 
 function deleteResult(id) {
