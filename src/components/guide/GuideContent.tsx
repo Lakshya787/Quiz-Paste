@@ -155,7 +155,7 @@ export function GuideContent() {
             <div className={styles.stepContent}><PromptGenerator /></div>
           </StepCard>
           <StepCard number={3} icon={<ClipboardPaste size={18} />} title="Paste the result into QuizPaste">
-            <p className={styles.stepDescription}>Copy the AI&apos;s questions, open the Paste tab, and paste them in. Check that the green preview shows the number of questions you requested, then press <strong>START</strong>.</p>
+            <p className={styles.stepDescription}>Copy the AI&apos;s questions, open the Paste tab, and paste them in. Turn on <strong>Combined test</strong> to require at least one MCQ, True/False, and multi-select question. Check that the green preview shows the number of questions you requested, then press <strong>START</strong>.</p>
           </StepCard>
         </div>
       </GuideSection>
@@ -224,7 +224,7 @@ export function GuideContent() {
         <div className={styles.faqList}>
           <FaqItem question="Is my data uploaded anywhere?">QuizPaste does not upload your notes. Results are saved in localStorage in this browser; you choose what material to upload directly to your AI provider.</FaqItem>
           <FaqItem question="Which AI should I use?">Any AI chat that accepts file uploads works, including ChatGPT, Claude, Gemini, or another service you prefer.</FaqItem>
-          <FaqItem question="Can I mix question types?">Yes. The prompt generator can request single-answer, true/false, and multi-select questions in the same quiz.</FaqItem>
+          <FaqItem question="Can I mix question types?">Yes. The prompt generator can request single-answer, true/false, and multi-select questions in the same quiz. Turn on Combined test on the Paste tab to require at least one question of each type.</FaqItem>
           <FaqItem question="Can I edit questions after starting?">Not in the active quiz. Return to Paste, edit the questions, and start again.</FaqItem>
           <FaqItem question="How many options can a question have?">Use two to six options labeled A) through F). True/false questions use T) and F).</FaqItem>
           <FaqItem question="Why was a question skipped?">Check the Common mistakes section and the preview count. Questions need at least two options and one marked correct answer.</FaqItem>

@@ -269,6 +269,7 @@ export default function QuizApp() {
   const [input, setInput] = useState('');
   const [quizName, setQuizName] = useState('');
   const [hint, setHint] = useState<QuestionType>('single');
+  const [combinedTest, setCombinedTest] = useState(false);
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [answers, setAnswers] = useState<Array<Answer | undefined>>([]);
   const [revealed, setRevealed] = useState<boolean[]>([]);
@@ -346,6 +347,17 @@ export default function QuizApp() {
     if (!parsedQuestions.length) {
       showToast('No valid questions found. Check the format and mark each answer with an asterisk.');
       return;
+    }
+    if (combinedTest) {
+      const missingTypes = [
+        parsedCounts.single ? '' : 'MCQ',
+        parsedCounts.tf ? '' : 'True / False',
+        parsedCounts.multi ? '' : 'multi-select',
+      ].filter(Boolean);
+      if (missingTypes.length) {
+        showToast(`Combined test is missing: ${missingTypes.join(', ')}.`);
+        return;
+      }
     }
     setQuiz({
       name: quizName.trim() || `Quiz ${new Date().toLocaleString()}`,
@@ -554,6 +566,23 @@ export default function QuizApp() {
                   <div className="mb-5 flex items-center justify-between">
                     <div className="flex items-center gap-2.5"><span className="flex size-8 items-center justify-center rounded-organic-sm bg-wash text-leaf"><ClipboardList size={16} /></span><h2 className="font-hand text-[25px] leading-none">Your question sheet</h2></div>
                     <span className="rounded-full bg-paper-deep/50 px-2.5 py-1 text-[10px] tracking-wide text-quiet">PASTE &amp; PLAY</span>
+                  </div>
+
+                  <div className="mb-5 flex items-center justify-between gap-4 rounded-organic-sm border border-paper-edge/40 bg-paper/50 px-4 py-3">
+                    <div>
+                      <p className="text-xs font-semibold text-ink">Combined test</p>
+                      <p className="mt-1 text-[10px] leading-relaxed text-quiet">Require at least one MCQ, True / False, and multi-select question.</p>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={combinedTest}
+                      aria-label="Combined test"
+                      onClick={() => setCombinedTest((enabled) => !enabled)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${combinedTest ? 'bg-leaf' : 'bg-paper-edge'}`}
+                    >
+                      <span className={`inline-block size-4 rounded-full bg-paper-light shadow-sm transition-transform ${combinedTest ? 'translate-x-6' : 'translate-x-1'}`} />
+                    </button>
                   </div>
 
                   <div className="mb-3 flex flex-wrap gap-1.5" role="tablist" aria-label="Question format examples">
