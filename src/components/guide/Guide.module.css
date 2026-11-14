@@ -20,6 +20,9 @@
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   color: var(--guide-ink);
   font-family: var(--font-hand), cursive;
   font-size: 23px;

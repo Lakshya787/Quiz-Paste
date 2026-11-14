@@ -8,6 +8,9 @@ const caveat = Caveat({ subsets: ['latin'], variable: '--font-caveat', display: 
 export const metadata: Metadata = {
   title: 'Morrow Studio — Make a little magic',
   description: 'An illustrated landscape workspace with prompts, watercolor moods, and a personal gallery.',
+  icons: {
+    icon: '/icon.ico',
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

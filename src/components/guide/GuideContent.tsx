@@ -122,7 +122,10 @@ export function GuideContent() {
   return (
     <main id="top" className={styles.guide}>
       <header className={styles.topNav}>
-        <Link className={styles.brand} href="/">QuizPaste</Link>
+        <Link className={styles.brand} href="/">
+          <img src="/icon.ico" width={28} height={28} alt="" aria-hidden="true" />
+          <span>QuizPaste</span>
+        </Link>
         <Link className={styles.backLink} href="/"><ArrowLeft size={15} /> Back to app</Link>
       </header>
 

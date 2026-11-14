@@ -192,8 +192,8 @@ function statusLabel(status: ScoreStatus): string {
 
 function statusClasses(status: ScoreStatus): string {
   if (status === 'correct') return 'border-leaf/50 bg-wash text-leaf';
-  if (status === 'partial') return 'border-earth/60 bg-parchment/70 text-ink-soft';
-  if (status === 'wrong') return 'border-clay/55 bg-clay/15 text-ink-soft';
+  if (status === 'partial') return 'border-earth/60 bg-parchment/70 text-earth';
+  if (status === 'wrong') return 'border-spirit/50 bg-spirit/10 text-spirit';
   return 'border-paper-edge/60 bg-paper-light text-quiet';
 }
 
@@ -222,9 +222,11 @@ function ReviewList({ questions }: { questions: ReviewQuestion[] }) {
                 const isSelected = selected.has(optionIndex);
                 const isCorrect = question.corrects.includes(optionIndex);
                 const optionClass = isCorrect
-                  ? 'border-leaf/50 bg-wash/70 text-ink'
+                  ? question.type === 'multi' && !isSelected
+                    ? 'border-earth/55 bg-parchment/70 text-ink'
+                    : 'border-leaf/50 bg-wash/70 text-ink'
                   : isSelected
-                    ? 'border-clay/50 bg-clay/10 text-ink'
+                    ? 'border-spirit/45 bg-spirit/10 text-ink'
                     : 'border-paper-edge/35 bg-paper/50 text-ink-soft';
                 return (
                   <div key={`${optionIndex}-${option}`} className={`flex items-center gap-3 rounded-organic-sm border px-3 py-2.5 text-sm ${optionClass}`}>
@@ -232,8 +234,9 @@ function ReviewList({ questions }: { questions: ReviewQuestion[] }) {
                       {isCorrect ? <Check size={12} /> : String.fromCharCode(65 + optionIndex)}
                     </span>
                     <span className="min-w-0 flex-1">{option}</span>
-                    {isSelected && <span className="text-[9px] font-semibold uppercase tracking-wide">Your answer</span>}
-                    {isCorrect && <span className="text-[9px] font-semibold uppercase tracking-wide">Correct</span>}
+                    {isSelected && !isCorrect && <span className="text-[9px] font-semibold uppercase tracking-wide text-spirit">Your answer</span>}
+                    {isCorrect && question.type === 'multi' && !isSelected && <span className="text-[9px] font-semibold uppercase tracking-wide text-earth">Missed</span>}
+                    {isCorrect && (question.type !== 'multi' || isSelected) && <span className="text-[9px] font-semibold uppercase tracking-wide text-leaf">Correct</span>}
                   </div>
                 );
               })}
@@ -254,7 +257,7 @@ function ResultSummary({ result }: { result: QuizResult }) {
       <div className="mt-6 flex flex-wrap justify-center gap-5">
         <div><p className="text-xl font-bold text-leaf">{result.correct}</p><p className="text-[10px] text-quiet">correct</p></div>
         {result.partial > 0 && <div><p className="text-xl font-bold text-earth">{result.partial}</p><p className="text-[10px] text-quiet">partial</p></div>}
-        <div><p className="text-xl font-bold text-clay">{result.wrong}</p><p className="text-[10px] text-quiet">incorrect</p></div>
+        <div><p className="text-xl font-bold text-spirit">{result.wrong}</p><p className="text-[10px] text-quiet">incorrect</p></div>
         <div><p className="text-xl font-bold text-quiet">{result.unanswered}</p><p className="text-[10px] text-quiet">skipped</p></div>
       </div>
     </section>
@@ -482,7 +485,7 @@ export default function QuizApp() {
     <div className="min-h-screen">
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[232px] flex-col border-r border-leaf/15 bg-paper-light/75 px-5 py-7 backdrop-blur-sm lg:flex">
         <div className="mb-12 flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-organic-sm bg-leaf text-on-accent"><Leaf size={19} /></span>
+          <img className="size-10 rounded-organic-sm object-contain" src="/icon.ico" width={40} height={40} alt="" aria-hidden="true" />
           <span><span className="block font-hand text-[23px] font-semibold leading-none tracking-tight">QuizPaste</span><span className="mt-1 block text-[10px] tracking-[.16em] text-quiet uppercase">a quiet quiz studio</span></span>
         </div>
         <p className="mb-3 pl-3 text-[10px] font-semibold tracking-[.17em] text-quiet uppercase">Your worktable</p>
@@ -511,7 +514,7 @@ export default function QuizApp() {
       <div className="min-h-screen lg:ml-[232px]">
         <header className="flex h-[72px] items-center justify-between border-b border-leaf/10 px-5 sm:px-8 xl:px-12">
           <div className="flex items-center gap-2.5 lg:hidden">
-            <span className="flex size-8 items-center justify-center rounded-organic-sm bg-leaf text-paper-light"><Leaf size={16} /></span>
+            <img className="size-8 rounded-organic-sm object-contain" src="/icon.ico" width={32} height={32} alt="" aria-hidden="true" />
             <span className="font-hand text-xl font-semibold">QuizPaste</span>
           </div>
           <div className="hidden items-center gap-2 text-xs text-quiet sm:flex"><span>QuizPaste</span><span className="text-paper-edge">/</span><span className="font-medium text-ink">{sectionName}</span></div>
@@ -686,10 +689,14 @@ export default function QuizApp() {
                           ? activeAnswer instanceof Set && activeAnswer.has(optionIndex)
                           : activeAnswer === optionIndex;
                         const correct = activeQuestion.corrects.includes(optionIndex);
+                        const selectedWrong = currentRevealed && selected && !correct;
                         let optionState = selected ? 'border-earth/60 bg-parchment/70' : 'border-paper-edge/50 bg-paper/55 hover:border-leaf/45 hover:bg-wash/45';
                         if (currentRevealed && correct && (activeQuestion.type !== 'multi' || selected)) optionState = 'border-leaf/60 bg-wash';
-                        else if (currentRevealed && correct && !selected) optionState = 'border-earth/60 bg-parchment/65';
-                        else if (currentRevealed && selected && !correct) optionState = 'border-clay/60 bg-clay/15';
+                        else if (currentRevealed && correct && !selected) optionState = 'border-earth/60 bg-earth/15';
+                        else if (selectedWrong) optionState = 'border-spirit/60 bg-spirit/10';
+                        const indicatorState = selectedWrong
+                          ? 'border-spirit bg-spirit text-on-accent'
+                          : selected ? 'border-leaf bg-leaf text-on-accent' : 'border-paper-edge text-quiet';
                         return (
                           <button
                             key={`${optionIndex}-${option}`}
@@ -699,12 +706,13 @@ export default function QuizApp() {
                             aria-pressed={selected}
                             className={`flex w-full items-center gap-3 rounded-organic-sm border px-3.5 py-3 text-left text-sm transition-colors disabled:cursor-default ${optionState}`}
                           >
-                            <span className={`flex size-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold ${selected ? 'border-leaf bg-leaf text-on-accent' : 'border-paper-edge text-quiet'}`}>
+                            <span className={`flex size-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold ${indicatorState}`}>
                               {selected && activeQuestion.type === 'multi' ? <Check size={13} /> : activeQuestion.type === 'tf' ? optionIndex === 0 ? 'T' : 'F' : String.fromCharCode(65 + optionIndex)}
                             </span>
                             <span className="min-w-0 flex-1 text-ink">{option}</span>
-                            {currentRevealed && correct && <span className="text-[9px] font-semibold uppercase tracking-wide text-leaf">Correct</span>}
-                            {currentRevealed && selected && !correct && <span className="text-[9px] font-semibold uppercase tracking-wide text-clay">Your answer</span>}
+                            {currentRevealed && correct && (activeQuestion.type !== 'multi' || selected) && <span className="text-[9px] font-semibold uppercase tracking-wide text-leaf">Correct</span>}
+                            {currentRevealed && correct && activeQuestion.type === 'multi' && !selected && <span className="text-[9px] font-semibold uppercase tracking-wide text-earth">Missed</span>}
+                            {selectedWrong && <span className="text-[9px] font-semibold uppercase tracking-wide text-spirit">Your answer</span>}
                           </button>
                         );
                       })}
