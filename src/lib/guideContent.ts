@@ -1,9 +1,3 @@
-export interface PromptCounts {
-  single: number;
-  tf: number;
-  multi: number;
-}
-
 export const singleExample = `1. What is 2+2?
 A) 3
 B) 4 *
@@ -22,49 +16,72 @@ D) 9`;
 
 export const sampleQuiz = `${singleExample}\n\n${trueFalseExample}\n\n${multiExample}`;
 
-const exampleByType = [
-  { type: 'single' as const, text: singleExample },
-  { type: 'tf' as const, text: trueFalseExample },
-  { type: 'multi' as const, text: multiExample },
-];
+export const quizPrompt = `You are an expert exam writer. Create exactly 10 quiz questions from the study material I have attached.
 
-export function buildPrompt(counts: PromptCounts): string {
-  const total = counts.single + counts.tf + counts.multi;
-  if (total === 0) return '';
+QUESTION BREAKDOWN
+- 5 single-answer questions
+- 3 true/false questions
+- 2 multi-select questions
+Total: exactly 10, numbered 1 to 10. Mix the question types in a random order.
 
-  const breakdown = [
-    counts.single > 0 && `${counts.single} single-answer ${counts.single === 1 ? 'question' : 'questions'}`,
-    counts.tf > 0 && `${counts.tf} true/false ${counts.tf === 1 ? 'question' : 'questions'}`,
-    counts.multi > 0 && `${counts.multi} multi-select ${counts.multi === 1 ? 'question' : 'questions'}`,
-  ].filter((item): item is string => Boolean(item));
+SOURCE RULES
+- Use ONLY the attached material. Do not add facts, examples, numbers or definitions from anywhere else.
+- Spread the questions across the whole material (different topics and sections). No two questions may test the same fact.
+- Prefer questions that test understanding (definitions, causes and effects, comparisons, steps in a process, formulas, key terms) over trivia such as page numbers, author names or formatting.
+- Every question must stand on its own. Never write "according to the text", "the passage", "the document", "the slide", "the figure" or otherwise refer to the attachment. Put any needed context inside the question itself.
+- Write in the same language as the material.
+- If the material contains images, charts or tables, use their labelled content, but make sure each question can be read and answered as plain text.
 
-  const selectedExamples = exampleByType
-    .filter(({ type }) => counts[type] > 0)
-    .map(({ text }, index) => text.replace(/^\d+[.)]/, `${index + 1}.`))
-    .join('\n\n');
+QUESTION TYPE RULES
+Single-answer (MCQ):
+- Exactly four options labelled A), B), C) and D), with exactly ONE correct option.
+- Wrong options must be plausible, on-topic, and similar in length and style to the correct one. No joke or obviously absurd options.
+- Never use "All of the above", "None of the above" or "Both A and B".
+- Spread the correct answer evenly across A, B, C and D. Do not favour one letter.
 
-  return [
-    `Create exactly ${total} quiz ${total === 1 ? 'question' : 'questions'} using the attached study material.`,
-    `Question breakdown: ${breakdown.join(', ')}.`,
-    '',
-    'Using ONLY the attached material, write the requested questions and do not add facts from elsewhere.',
-    '',
-    'Question type rules:',
-    '- Single-answer (MCQ): provide exactly four options labeled A), B), C), and D), with exactly ONE correct answer.',
-    '- True/False: provide exactly T) True and F) False, with exactly ONE correct answer.',
-    '- Multi-select: provide four or five options labeled A) through E), with TWO or more correct answers.',
-    '',
-    'Format rules:',
-    '- Number questions continuously as 1., 2., 3., and so on.',
-    '- Put each question and each option on its own line.',
-    '- Put * at the end of every correct option line.',
-    '- Mark exactly one correct option for single-answer and true/false questions.',
-    '- Mark two or more correct options for multi-select questions.',
-    '- Mix the requested question types randomly.',
-    '- Do not include explanations, headings, markdown, or bold text.',
-    '- Output ONLY the questions.',
-    '',
-    'Format example for the selected question types:',
-    selectedExamples,
-  ].join('\n');
-}
+True/False:
+- The question line is a clear declarative statement (not a question) that is either entirely true or entirely false according to the material.
+- The options are exactly "T) True" and "F) False", in that order, with exactly ONE marked correct.
+- Keep a balanced mix of true and false statements. Avoid giveaway words such as "always" or "never" unless the material uses them.
+
+Multi-select:
+- Four or five options labelled A) to D), or A) to E).
+- TWO or more options are correct (usually two or three) and at least one option is incorrect. Never mark every option as correct.
+- Word the question so that several answers are expected (for example "Which of the following ...?"). Do not add "(select all that apply)".
+
+OUTPUT FORMAT (strict, because an app reads this text automatically)
+- Number the questions continuously: 1., 2., 3., and so on (number, period, space).
+- Write each question on ONE line. Write each option on its own line as: letter, closing parenthesis, space, option text. Example: B) Option text
+- Never split a question or an option across several lines.
+- Put a space and then * at the very end of EVERY correct option line. Never use the * character anywhere else.
+- Mark exactly ONE correct option for single-answer and true/false questions.
+- Mark TWO or more correct options for multi-select questions.
+- Leave one blank line between questions.
+- Do not include headings, explanations, answer keys, hints, bold, italics, bullet points or any other markdown formatting.
+- Do not write any introduction or closing sentence.
+- Put the whole output inside a single plain-text code block so the formatting survives copying. Write nothing outside that block.
+
+FORMAT EXAMPLE
+1. What is 2+2?
+A) 3
+B) 4 *
+C) 5
+D) 6
+
+2. The sun is a star.
+T) True *
+F) False
+
+3. Which of the following are prime numbers?
+A) 2 *
+B) 4
+C) 7 *
+D) 9
+
+BEFORE YOU ANSWER, CHECK SILENTLY THAT:
+- there are exactly 10 questions, numbered 1 to 10
+- the counts per type match: 5 single-answer, 3 true/false, 2 multi-select
+- every single-answer and true/false question has exactly one option ending in *
+- every multi-select question has two or more options ending in *, and at least one without
+- no * appears anywhere except at the end of a correct option line
+- the output contains only the questions`;

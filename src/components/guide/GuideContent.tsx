@@ -145,17 +145,17 @@ export function GuideContent() {
       </nav>
 
       <GuideSection id="generate" icon={<SlidersHorizontal size={19} />} title="Generate a quiz from your material">
-        <p className={styles.sectionText}>Use any AI chat that accepts file uploads. Set the mix and number of questions, then give the AI the generated prompt.</p>
+        <p className={styles.sectionText}>Use any AI chat that accepts file uploads. Give the AI the generated prompt along with your study material to create a balanced 10-question quiz.</p>
         <div className={styles.stepList}>
           <StepCard number={1} icon={<FileUp size={18} />} title="Upload your study material to any LLM">
             <p className={styles.stepDescription}>Open ChatGPT, Claude, Gemini, or another AI chat. Upload your notes, PDF, slides, or photos of textbook pages.</p>
           </StepCard>
-          <StepCard number={2} icon={<SlidersHorizontal size={18} />} title="Choose your quiz, then paste this prompt">
-            <p className={styles.stepDescription}>Set the number of questions for each type. Copy the prompt and send it in the same chat as your uploaded material.</p>
+          <StepCard number={2} icon={<SlidersHorizontal size={18} />} title="Copy this prompt into your chat">
+            <p className={styles.stepDescription}>Copy the prompt and send it in the same chat as your uploaded material.</p>
             <div className={styles.stepContent}><PromptGenerator /></div>
           </StepCard>
           <StepCard number={3} icon={<ClipboardPaste size={18} />} title="Paste the result into QuizPaste">
-            <p className={styles.stepDescription}>Copy the AI&apos;s questions, open the Paste tab, and paste them in. Turn on <strong>Combined test</strong> to require at least one MCQ, True/False, and multi-select question. Check that the green preview shows the number of questions you requested, then press <strong>START</strong>.</p>
+            <p className={styles.stepDescription}>Copy the AI&apos;s questions, open the Paste tab, and paste them in. Turn on <strong>Combined test</strong> to require at least one MCQ, True/False, and multi-select question. Check that the green preview shows 10 questions, then press <strong>START</strong>.</p>
           </StepCard>
         </div>
       </GuideSection>
