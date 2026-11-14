@@ -4,6 +4,52 @@
   margin-top: 14px;
 }
 
+.questionControl {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid rgb(185 173 145 / 45%);
+  border-radius: 16px 12px 17px 11px / 12px 17px 11px 16px;
+  background: var(--dp-color-paper);
+}
+
+.questionLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--dp-color-ink-soft);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.questionCount {
+  min-width: 32px;
+  color: var(--dp-color-leaf);
+  font-family: monospace;
+  font-size: 14px;
+  text-align: right;
+}
+
+.questionSlider {
+  display: block;
+  width: 100%;
+  margin: 12px 0 7px;
+  accent-color: var(--dp-color-leaf);
+  cursor: pointer;
+}
+
+.questionSlider:focus-visible {
+  outline: 2px solid var(--dp-color-howls-blue);
+  outline-offset: 3px;
+}
+
+.questionHint {
+  margin: 0;
+  color: var(--dp-color-ink-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 .promptPanel {
   overflow: hidden;
   border: 1px solid rgb(185 173 145 / 45%);

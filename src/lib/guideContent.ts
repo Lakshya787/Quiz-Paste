@@ -16,13 +16,44 @@ D) 9`;
 
 export const sampleQuiz = `${singleExample}\n\n${trueFalseExample}\n\n${multiExample}`;
 
-export const quizPrompt = `You are an expert exam writer. Create exactly 10 quiz questions from the study material I have attached.
+export const DEFAULT_QUESTION_COUNT = 10;
+
+function getQuestionBreakdown(total: number) {
+  const weights = [5, 3, 2];
+  const counts = [1, 1, 1];
+  const remaining = total - counts.length;
+  const remainders = weights.map((weight, index) => {
+    const weightedCount = (remaining * weight) / 10;
+    const wholeCount = Math.floor(weightedCount);
+    counts[index] += wholeCount;
+    return { index, remainder: weightedCount - wholeCount };
+  });
+  const unassigned = total - counts.reduce((sum, count) => sum + count, 0);
+
+  remainders
+    .sort((left, right) => right.remainder - left.remainder)
+    .slice(0, unassigned)
+    .forEach(({ index }) => {
+      counts[index] += 1;
+    });
+
+  return counts;
+}
+
+export function buildQuizPrompt(questionCount: number) {
+  if (!Number.isInteger(questionCount) || questionCount < 3) {
+    throw new RangeError('The quiz must contain at least 3 questions.');
+  }
+
+  const [singleCount, trueFalseCount, multiCount] = getQuestionBreakdown(questionCount);
+  const questionWord = (count: number) => count === 1 ? 'question' : 'questions';
+  return `You are an expert exam writer. Create exactly ${questionCount} quiz questions from the study material I have attached.
 
 QUESTION BREAKDOWN
-- 5 single-answer questions
-- 3 true/false questions
-- 2 multi-select questions
-Total: exactly 10, numbered 1 to 10. Mix the question types in a random order.
+- ${singleCount} single-answer ${questionWord(singleCount)}
+- ${trueFalseCount} true/false ${questionWord(trueFalseCount)}
+- ${multiCount} multi-select ${questionWord(multiCount)}
+Total: exactly ${questionCount}, numbered 1 to ${questionCount}. Mix the question types in a random order.
 
 SOURCE RULES
 - Use ONLY the attached material. Do not add facts, examples, numbers or definitions from anywhere else.
@@ -79,9 +110,12 @@ C) 7 *
 D) 9
 
 BEFORE YOU ANSWER, CHECK SILENTLY THAT:
-- there are exactly 10 questions, numbered 1 to 10
-- the counts per type match: 5 single-answer, 3 true/false, 2 multi-select
+- there are exactly ${questionCount} questions, numbered 1 to ${questionCount}
+- the counts per type match: ${singleCount} single-answer, ${trueFalseCount} true/false, ${multiCount} multi-select
 - every single-answer and true/false question has exactly one option ending in *
 - every multi-select question has two or more options ending in *, and at least one without
 - no * appears anywhere except at the end of a correct option line
 - the output contains only the questions`;
+}
+
+export const quizPrompt = buildQuizPrompt(DEFAULT_QUESTION_COUNT);

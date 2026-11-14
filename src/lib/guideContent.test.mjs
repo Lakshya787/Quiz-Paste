@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { quizPrompt, sampleQuiz } from './guideContent.ts';
+import { buildQuizPrompt, quizPrompt, sampleQuiz } from './guideContent.ts';
 import { parseQuiz } from './parser.ts';
 
 test('sample quiz parses as single, true/false, and multi-select', () => {
@@ -15,4 +15,24 @@ test('generated prompt requires exactly the requested question counts and output
   assert.match(quizPrompt, /Put the whole output inside a single plain-text code block/);
   assert.match(quizPrompt, /BEFORE YOU ANSWER, CHECK SILENTLY THAT:/);
   assert.doesNotMatch(quizPrompt, /prompt-count-|Move at least one slider/);
+});
+
+test('generated prompt updates totals and keeps all question types for custom counts', () => {
+  for (const questionCount of [3, 4, 17, 30]) {
+    const prompt = buildQuizPrompt(questionCount);
+    const [, singleCount, trueFalseCount, multiCount] = prompt.match(
+      /- (\d+) single-answer questions\n- (\d+) true\/false questions\n- (\d+) multi-select questions/,
+    );
+
+    assert.equal(Number(singleCount) + Number(trueFalseCount) + Number(multiCount), questionCount);
+    assert.ok(Number(singleCount) >= 1);
+    assert.ok(Number(trueFalseCount) >= 1);
+    assert.ok(Number(multiCount) >= 1);
+    assert.match(prompt, new RegExp(`Create exactly ${questionCount} quiz questions`));
+    assert.match(prompt, new RegExp(`numbered 1 to ${questionCount}`));
+  }
+});
+
+test('generated prompt rejects counts below the minimum needed for each question type', () => {
+  assert.throws(() => buildQuizPrompt(2), RangeError);
 });
