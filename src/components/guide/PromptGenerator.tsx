@@ -51,7 +51,7 @@ export default function PromptGenerator() {
                   const value = Number(event.target.value);
                   setQuestionCounts((current) => ({ ...current, [key]: value }));
                 }}
-                aria-valuetext={`${questionCounts[key]} ${label} questions`}
+                aria-valuetext={`${questionCounts[key]} ${label} ${questionCounts[key] === 1 ? 'question' : 'questions'}`}
               />
             </div>
           );
