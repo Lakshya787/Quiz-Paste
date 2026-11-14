@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildQuizPrompt, quizPrompt, sampleQuiz } from './guideContent.ts';
+import {
+  buildQuizPrompt,
+  DEFAULT_QUESTION_COUNTS,
+  MAX_QUESTION_COUNT,
+  quizPrompt,
+  sampleQuiz,
+} from './guideContent.ts';
 import { parseQuiz } from './parser.ts';
 
 test('sample quiz parses as single, true/false, and multi-select', () => {
@@ -17,22 +23,28 @@ test('generated prompt requires exactly the requested question counts and output
   assert.doesNotMatch(quizPrompt, /prompt-count-|Move at least one slider/);
 });
 
-test('generated prompt updates totals and keeps all question types for custom counts', () => {
-  for (const questionCount of [3, 4, 17, 30]) {
-    const prompt = buildQuizPrompt(questionCount);
-    const [, singleCount, trueFalseCount, multiCount] = prompt.match(
-      /- (\d+) single-answer questions\n- (\d+) true\/false questions\n- (\d+) multi-select questions/,
-    );
+test('generated prompt uses independently requested counts, including 30 MCQs and zero other types', () => {
+  const prompt = buildQuizPrompt(30, 0, 0);
 
-    assert.equal(Number(singleCount) + Number(trueFalseCount) + Number(multiCount), questionCount);
-    assert.ok(Number(singleCount) >= 1);
-    assert.ok(Number(trueFalseCount) >= 1);
-    assert.ok(Number(multiCount) >= 1);
-    assert.match(prompt, new RegExp(`Create exactly ${questionCount} quiz questions`));
-    assert.match(prompt, new RegExp(`numbered 1 to ${questionCount}`));
-  }
+  assert.match(prompt, /Create exactly 30 quiz questions/);
+  assert.match(prompt, /- 30 single-answer questions\n- 0 true\/false questions\n- 0 multi-select questions/);
+  assert.match(prompt, /Total: exactly 30, numbered 1 to 30\./);
+  assert.match(prompt, /Put the whole output inside a single plain-text code block/);
 });
 
-test('generated prompt rejects counts below the minimum needed for each question type', () => {
-  assert.throws(() => buildQuizPrompt(2), RangeError);
+test('generated prompt supports any mix of question types while preserving default counts', () => {
+  const prompt = buildQuizPrompt(0, 7, 4);
+
+  assert.match(prompt, /- 0 single-answer questions\n- 7 true\/false questions\n- 4 multi-select questions/);
+  assert.match(prompt, /Create exactly 11 quiz questions/);
+  assert.match(prompt, /numbered 1 to 11/);
+  assert.deepEqual(DEFAULT_QUESTION_COUNTS, { single: 5, trueFalse: 3, multi: 2 });
+});
+
+test('generated prompt rejects invalid counts, empty quizzes, and totals over 30', () => {
+  assert.throws(() => buildQuizPrompt(0, 0, 0), RangeError);
+  assert.throws(() => buildQuizPrompt(-1, 1, 0), RangeError);
+  assert.throws(() => buildQuizPrompt(1.5, 0, 0), RangeError);
+  assert.throws(() => buildQuizPrompt(31, 0, 0), RangeError);
+  assert.equal(MAX_QUESTION_COUNT, 30);
 });

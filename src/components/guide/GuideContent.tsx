@@ -145,7 +145,7 @@ export function GuideContent() {
       </nav>
 
       <GuideSection id="generate" icon={<SlidersHorizontal size={19} />} title="Generate a quiz from your material">
-        <p className={styles.sectionText}>Use any AI chat that accepts file uploads. Set your preferred question count, then give the AI the generated prompt along with your study material to create a balanced quiz.</p>
+        <p className={styles.sectionText}>Use any AI chat that accepts file uploads. Set the number of MCQ, true/false, and multiple-select questions independently, then give the AI the generated prompt along with your study material.</p>
         <div className={styles.stepList}>
           <StepCard number={1} icon={<FileUp size={18} />} title="Upload your study material to any LLM">
             <p className={styles.stepDescription}>Open ChatGPT, Claude, Gemini, or another AI chat. Upload your notes, PDF, slides, or photos of textbook pages.</p>
@@ -224,7 +224,7 @@ export function GuideContent() {
         <div className={styles.faqList}>
           <FaqItem question="Is my data uploaded anywhere?">QuizPaste does not upload your notes. Results are saved in localStorage in this browser; you choose what material to upload directly to your AI provider.</FaqItem>
           <FaqItem question="Which AI should I use?">Any AI chat that accepts file uploads works, including ChatGPT, Claude, Gemini, or another service you prefer.</FaqItem>
-          <FaqItem question="Can I change the number of questions or mix question types?">Yes. Use the slider in the prompt generator to choose 3–30 questions. The prompt includes single-answer, true/false, and multi-select questions. Turn on Combined test on the Paste tab to require at least one question of each type.</FaqItem>
+          <FaqItem question="Can I change the number of questions or mix question types?">Yes. Use the separate sliders to choose 1–30 questions total, including zero of any type. The prompt keeps the same format and updates the requested counts. Turn on Combined test on the Paste tab only when you want to require at least one question of each type.</FaqItem>
           <FaqItem question="Can I edit questions after starting?">Not in the active quiz. Return to Paste, edit the questions, and start again.</FaqItem>
           <FaqItem question="How many options can a question have?">Use two to six options labeled A) through F). True/false questions use T) and F).</FaqItem>
           <FaqItem question="Why was a question skipped?">Check the Common mistakes section and the preview count. Questions need at least two options and one marked correct answer.</FaqItem>

@@ -16,36 +16,20 @@ D) 9`;
 
 export const sampleQuiz = `${singleExample}\n\n${trueFalseExample}\n\n${multiExample}`;
 
-export const DEFAULT_QUESTION_COUNT = 10;
+export const MAX_QUESTION_COUNT = 30;
+export const DEFAULT_QUESTION_COUNTS = { single: 5, trueFalse: 3, multi: 2 };
 
-function getQuestionBreakdown(total: number) {
-  const weights = [5, 3, 2];
-  const counts = [1, 1, 1];
-  const remaining = total - counts.length;
-  const remainders = weights.map((weight, index) => {
-    const weightedCount = (remaining * weight) / 10;
-    const wholeCount = Math.floor(weightedCount);
-    counts[index] += wholeCount;
-    return { index, remainder: weightedCount - wholeCount };
-  });
-  const unassigned = total - counts.reduce((sum, count) => sum + count, 0);
-
-  remainders
-    .sort((left, right) => right.remainder - left.remainder)
-    .slice(0, unassigned)
-    .forEach(({ index }) => {
-      counts[index] += 1;
-    });
-
-  return counts;
-}
-
-export function buildQuizPrompt(questionCount: number) {
-  if (!Number.isInteger(questionCount) || questionCount < 3) {
-    throw new RangeError('The quiz must contain at least 3 questions.');
+export function buildQuizPrompt(singleCount: number, trueFalseCount: number, multiCount: number) {
+  const counts = [singleCount, trueFalseCount, multiCount];
+  const questionCount = counts.reduce((sum, count) => sum + count, 0);
+  if (
+    counts.some((count) => !Number.isInteger(count) || count < 0)
+    || questionCount < 1
+    || questionCount > MAX_QUESTION_COUNT
+  ) {
+    throw new RangeError(`The quiz must contain between 1 and ${MAX_QUESTION_COUNT} questions.`);
   }
 
-  const [singleCount, trueFalseCount, multiCount] = getQuestionBreakdown(questionCount);
   const questionWord = (count: number) => count === 1 ? 'question' : 'questions';
   return `You are an expert exam writer. Create exactly ${questionCount} quiz questions from the study material I have attached.
 
@@ -118,4 +102,8 @@ BEFORE YOU ANSWER, CHECK SILENTLY THAT:
 - the output contains only the questions`;
 }
 
-export const quizPrompt = buildQuizPrompt(DEFAULT_QUESTION_COUNT);
+export const quizPrompt = buildQuizPrompt(
+  DEFAULT_QUESTION_COUNTS.single,
+  DEFAULT_QUESTION_COUNTS.trueFalse,
+  DEFAULT_QUESTION_COUNTS.multi,
+);

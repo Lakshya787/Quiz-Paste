@@ -1,33 +1,64 @@
 'use client';
 
 import { useState } from 'react';
-import { buildQuizPrompt, DEFAULT_QUESTION_COUNT } from '@/lib/guideContent';
+import {
+  buildQuizPrompt,
+  DEFAULT_QUESTION_COUNTS,
+  MAX_QUESTION_COUNT,
+} from '@/lib/guideContent';
 import { CopyButton } from './GuideInteractive';
 import styles from './PromptGenerator.module.css';
 
+const QUESTION_TYPES = [
+  { key: 'single', label: 'MCQ' },
+  { key: 'trueFalse', label: 'True / False' },
+  { key: 'multi', label: 'Multiple select' },
+] as const;
+
 export default function PromptGenerator() {
-  const [questionCount, setQuestionCount] = useState(DEFAULT_QUESTION_COUNT);
-  const prompt = buildQuizPrompt(questionCount);
+  const [questionCounts, setQuestionCounts] = useState(DEFAULT_QUESTION_COUNTS);
+  const questionCount = questionCounts.single + questionCounts.trueFalse + questionCounts.multi;
+  const prompt = buildQuizPrompt(
+    questionCounts.single,
+    questionCounts.trueFalse,
+    questionCounts.multi,
+  );
 
   return (
     <div className={styles.generator}>
       <div className={styles.questionControl}>
-        <label className={styles.questionLabel} htmlFor="question-count">
-          <span>Number of questions</span>
-          <output className={styles.questionCount} htmlFor="question-count">{questionCount}</output>
-        </label>
-        <input
-          className={styles.questionSlider}
-          id="question-count"
-          type="range"
-          min={3}
-          max={30}
-          step={1}
-          value={questionCount}
-          onChange={(event) => setQuestionCount(Number(event.target.value))}
-          aria-valuetext={`${questionCount} questions`}
-        />
-        <p className={styles.questionHint}>Choose 3–30 questions. The prompt will include all three question types.</p>
+        {QUESTION_TYPES.map(({ key, label }) => {
+          const otherCount = questionCount - questionCounts[key];
+          const minimum = otherCount === 0 ? 1 : 0;
+          const maximum = MAX_QUESTION_COUNT - otherCount;
+          const inputId = `question-count-${key}`;
+
+          return (
+            <div className={styles.questionType} key={key}>
+              <label className={styles.questionLabel} htmlFor={inputId}>
+                <span>{label}</span>
+                <output className={styles.questionCount} htmlFor={inputId}>{questionCounts[key]}</output>
+              </label>
+              <input
+                className={styles.questionSlider}
+                id={inputId}
+                type="range"
+                min={minimum}
+                max={maximum}
+                step={1}
+                value={questionCounts[key]}
+                onChange={(event) => {
+                  const value = Number(event.target.value);
+                  setQuestionCounts((current) => ({ ...current, [key]: value }));
+                }}
+                aria-valuetext={`${questionCounts[key]} ${label} questions`}
+              />
+            </div>
+          );
+        })}
+        <p className={styles.questionHint}>
+          Set each type independently. Total: {questionCount}/{MAX_QUESTION_COUNT} questions.
+        </p>
       </div>
       <div className={styles.promptPanel}>
         <div className={styles.promptHeader}>
