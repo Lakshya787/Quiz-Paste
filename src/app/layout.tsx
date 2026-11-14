@@ -6,8 +6,8 @@ const nunito = Nunito({ subsets: ['latin'], variable: '--font-nunito', display: 
 const caveat = Caveat({ subsets: ['latin'], variable: '--font-caveat', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: 'Morrow Studio — Make a little magic',
-  description: 'An illustrated landscape workspace with prompts, watercolor moods, and a personal gallery.',
+  title: 'quizpaste',
+  description: 'Turn your study material into a quick, local quiz experience with quizpaste.',
   icons: {
     icon: '/icon.ico',
   },
